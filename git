@@ -1,0 +1,145 @@
+
+
+------------ them key access cho tk git------------
+git config --global user.name "huyhungonline"
+git config --global user.email "huyhungonline@gmail.com"
+
+
+ssh-keygen -t ed25519 -C "huyhungonline@gmail.com"
+ssh-keygen -t ed25519 -C "youremail@example.com"
+
+
+/home/naoki/.ssh/id_github_personal
+
+ssh-add ~/.ssh/id_github_personal
+
+cat ~/.ssh/id_github_personal.pub
+→ Copy toàn bộ dòng bắt đầu bằng ssh-ed25519 ...
+
+git clone git@github-personal:Cinnamon/prj_easyrag_production_automation_api.git
+
+-------------- reset origin--------------
+git remote set-url origin git@github-personal:huyhungonline/ssc.git
+
+git remote set-url origin git@github-personal:huyhungonline/jaenglish.git
+
+git remote set-url origin git@github-personal:huyhungonline/jaenglish-fe.git
+
+git reset --hard origin/main
+git remote set-url origin git@github.com:huyhungonline/ssc.git
+git remote add origin git@github-personal:huyhungonline/dic-be.git
+git remote add origin git@github-personal:huyhungonline/jaenglish.git
+
+git remote add origin git@github-personal:huyhungonline/infra.git
+
+
+------------------fetch cac branch-------------------------------
+git fetch --all
+git branch -a
+-------------------reset cho giong origin------------------------------
+git reset --hard origin/main
+
+-----------
+git remote set-url origin https://github.com/huyhungonline/jaenglish.git
+
+ssh-keygen -t ed25519 -C "huyhungonline@gmail.com"
+
+-------------- them source từ repo cũ sang repo mới--------------
+1. Tạo SSH key riêng cho account huyhung (nếu chưa có)
+ssh-keygen -t ed25519 -C "huyhung@example.com" -f ~/.ssh/id_ed25519_huyhung
+
+
+File private key: ~/.ssh/id_ed25519_huyhung
+
+File public key: ~/.ssh/id_ed25519_huyhung.pub
+
+2. Thêm public key vào GitHub
+
+Copy public key:
+
+cat ~/.ssh/id_ed25519_huyhung.pub
+
+
+→ vào GitHub
+ → SSH and GPG keys → New SSH key → dán vào.
+
+3. Cấu hình ~/.ssh/config
+
+Mở file:
+
+nano ~/.ssh/config
+
+
+Thêm đoạn này:
+
+Host github.com-huyhung
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_huyhung
+    IdentitiesOnly yes
+
+
+Lưu lại.
+
+4. Nạp key vào agent
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519_huyhung
+ssh-add -l   # kiểm tra đã nạp chưa
+
+5. Test kết nối alias
+ssh -T github.com-huyhung
+
+
+Kết quả mong đợi:
+
+Hi huyhungonline! You've successfully authenticated...
+
+6. Đặt remote của repo
+
+Trong thư mục project (/mnt/c/infra/jaenglish):
+
+git remote remove origin 2>/dev/null || true
+git remote add origin git@github.com-huyhung:huyhungonline/jaenglish.git
+git remote -v
+
+7. Push code lên GitHub
+git branch -M main
+git push -u origin main
+
+
+(Nếu repo GitHub đã có README.md → cần --force):
+
+git push -u origin main --force
+
+------------------------- them moi key ------------
+
+2. Generate a new SSH key (if none exists)
+
+If you don’t see a public key (.pub file), generate one:
+
+ssh-keygen -t ed25519 -C "huyhungonline@gmail.com"
+
+
+(Replace with the email linked to your GitHub account.)
+Press enter for defaults (key will be saved at ~/.ssh/id_ed25519).
+
+3. Add the key to the SSH agent
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+4. Copy the public key
+cat ~/.ssh/id_ed25519.pub
+
+
+Copy the output.
+
+5. Add the key to GitHub
+
+Go to GitHub → Settings → SSH and GPG keys
+
+Click New SSH key → paste the copied key → save.
+
+
+git remote add origin git@github.com:huyhungonline/jaenglish-fe.git
+
+git remote set-url origin https://github.com/huyhungonline/jaenglish-fe.git

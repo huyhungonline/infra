@@ -1,0 +1,55 @@
+bash /scripts/pg-restore.sh 2025-08-28/06-00/pg_backup_2025_08_28_06_00.tar
+
+
+psql postgres://postgres:bWldGM2FtWmphVzlrYzNWcFlXaHFjak01YlN@db:5432/app -c "SELECT * FROM tenant_default.user"
+
+
+psql postgres://postgres:bWldGM2FtWmphVzlrYzNWcFlXaHFjak01YlN@db:5432/ -c "\l"
+
+bash /scripts/milvus-restore.sh 2025-09-01/02-00/milvus_backup_2025_09_01_02_00.zip
+
+
+docker exec -it application-crontab-backup-1 bash
+
+bash /scripts/es-restore.sh 2025-10-09/04-00/es_backup_2025_10_09_04_00.zip
+
+bash /scripts/milvus-restore.sh 2025-10-09/04-00/milvus_backup_2025_10_09_04_00.zip
+
+bash /scripts/pg-restore.sh 2025-10-09/04-00/pg_backup_2025_10_09_04_00.tar
+
+
+milvus-backup create --config /tmp/milvus-backup.yaml -n backupName
+
+az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} --container-name ${STORAGE_BACKUP_CONTAINER_NAME} --name ${RESTORE_BACKUP_FILE} --file ${compressedBackup} --auth-mode login
+
+
+az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} --container-name ${STORAGE_BACKUP_CONTAINER_NAME} --name 2025-08-28/06-00 --file milvus_backup_2025_08_28_06_00.zip --auth-mode login
+
+9/1
+az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} --container-name ${STORAGE_BACKUP_CONTAINER_NAME} --name 2025-08-28/06-00 --file milvus_backup_2025_08_28_06_00.zip --auth-mode login
+
+
+Dừng và xóa container
+docker stop application-crontab-backup-1
+docker rm application-crontab-backup-1
+
+
+Hoặc nếu bạn chỉ nhớ ID:
+
+docker stop b2d603e87a19 && docker rm b2d603e87a19
+
+🧱 2. Xóa image liên quan
+
+Trước tiên kiểm tra image:
+
+docker images | grep prj_easyrag_production_backup
+
+
+Rồi xóa image đó:
+
+docker rmi rag2410.azurecr.io/prj_easyrag_production_backup/backup:pr-1e2d860
+
+
+Nếu image đang bị “dangling” (không tag):
+
+docker image prune -f

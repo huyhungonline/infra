@@ -1,0 +1,152 @@
+----- git -------------
+git status
+git add .
+git commit -m "sr terraform"
+git config --global user.email "nhuyhung@cinnamon.is"
+git commit -m "sr terraform"
+git status
+git config --global user.name "cin-naoki"
+git commit -m "sr terraform"
+git push origin master
+
+----them uyen cho thu muc---------------
+
+sudo chown -R adminuser:adminuser prj_easyrag_production_workloads/
+
+sudo usermod -a -G production_workloads azureuser
+
+sudo chmod -R g+w /home/production_workloads
+thay đổi quyền sở hữu
+sudo chown -R $USER:$USER /home/
+kiểm tra quyền sở hữu:
+ls -l /var/www/html
+sudo chown azureuser:azureuser /home/production_workloads/naoki
+
+------- them ssh cho serrver-------
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+VJ0VmOsxX3kAaJOUqZX6eIeW0p8GVf7xWtbgvHaTKoJqlTNLnK1LRiivhuicUA9l+x02LIneS0M8SF0e7E34IiPRSgqEbZCFRV9FNNvwKqgYYXvAdpYDBTZQrP9kT1meejdF6F0iESqZB94ASV6K8XOY7qCpGXxRS1r4B+ZPJYjNcVl0nSrByH2vwtHaVJLIGOaYZX7RCeSgAB35EsQk/pobf2ZAEXnAEGwidGrkf2tYq392lxGvdiSEWIHXa8AkPlZs29YBzM9lnQU0Ykf7bHVkobUqPTPZx7CyMSQwa1YTBFhl84p+yeE4+ErwZhu5c11o0h30pnvvXmQRRpZv john@Johns-MacBook-Pro.local
+
+copy ssh từ wsl sang window
+cp ~/.ssh/* /mnt/c/Users/nhuyhung/.ssh/
+
+az sshkey create --name "NaokiSSHKey" --resource-group "SuperRAG_production"
+
+az vm user update \
+  --resource-group SuperRAG_production \
+  --name dev \
+  --username azureuser \
+  --ssh-key-value cinnamon-dev.pub
+  
+-- ket noi mt dev cinnamon----
+ssh -i ~/.ssh/moneygain-dev azureuser@40.65.114.98
+ssh -i ~/.ssh/moneygain-dev root@40.65.114.98
+
+-----------cai ssl
+-------them vung nho--------------------
+
+sudo lvextend -L +5G /dev/mapper/rootvg-varlv
+sudo resize2fs /dev/mapper/rootvg-varlv
+sudo su -
+umount /srv
+resize2fs /dev/mapper/vg00-srv 800G
+lvresize -L 810G /dev/mapper/vg00-srv
+lvresize -L +80G /dev/mapper/rootvg-varlv
+resize2fs /dev/mapper/rootvg-varlv
+mount /srv
+mount -t nullfs /home/var/db/mysql /var/db/mysql
+sudo vgs
+sudo pvcreate /dev/sdc
+sudo vgextend rootvg /dev/sdc
+sudo lvextend -L +10G /dev/rootvg/varlv
+sudo lvextend -l +100%FREE /dev/rootvg/varlv
+sudo resize2fs /dev/rootvg/varlv
+sudo xfs_growfs /var
+
+--------mount 2 thu muc-----------
+sudo umount /home/naoki/.ssh 
+sudo mount -t drvfs C:/Users/nhuyhung/.ssh /home/naoki/.ssh -o metadata
+
+-------cai dat zip-----------
+sudo apt install zip
+
+------
+wget https://github.com/helmfile/helmfile/releases/download/v0.171.0/helmfile_0.171.0_linux_amd64.tar.gz
+tar -xvf helmfile_0.171.0_linux_amd64.tar.gz
+sudo mv helmfile /usr/local/bin/
+chmod +x /usr/local/bin/helmfile
+helmfile --version
+helm plugin install https://github.com/databus23/helm-diff
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl  /usr/local/bin/
+kubectl version --client
+
+aws eks list-clusters
+aws eks list-clusters --profile toei_cinnamon
+aws eks update-kubeconfig --region ap-northeast-1 --name toeicpd2-cobra-dev-eks --profile toei_cinnamon
+kubectl get nodes 
+kubectl get pods -n ingress-nginx
+
+kubectl logs deployments/webapi --namespace prod --tail 100
+kubectl logs deployments/coloring-worker --namespace prod --tail 100
+kubectl logs deployments/referencing-worker --namespace prod --tail 100
+
+--------------------
+
+ssh -i ~/.ssh/private-key azureuser@10.0.0.4
+scp -i private-key.pem -r ~/myfolder user@bastion-server:~/
+
+scp -i ~/.ssh/private-key -r /home/sr/ azureuser@10.0.0.4:/home/sr/
+
+
+--------------------
+note 
+-----
+trong thu muc cinnamon\toei\terraform\terraform\ap-northeast-1\dev\eks sua lai profile
+helm-applications\helm-applications\prod\coloring_worker.yaml.gotmpl
+helm-applications\helm-applications\prod\referencing_worker.yaml.gotmpl
+toei\helm-applications\helm-applications\prod\webapi.yaml.gotmpl
+can sua lai awws account id
+
+-----
+
+SR/sr-prod/application
+
+------- mount ổ đĩa-------------
+Kiểm tra thông tin partition và filesystem
+sudo blkid /dev/sdb1
+Backup fstab trước (cẩn thận không bao giờ thừa):
+sudo cp /etc/fstab /etc/fstab.bak
+Mở file fstab:
+sudo nano /etc/fstab
+Thêm dòng này vào cuối file:
+UUID=5917ac86-0f09-49a1-8401-59c48fc835de /mnt/docker-data ext4 defaults 0 2
+
+Test mount trước khi reboot:
+sudo mount -a
+Nếu không có lỗi gì, là ok!
+
+Kiểm tra:
+df -h | grep /mnt/docker-data
+----- sau tao o dia xong kiem tra
+
+lsblk
+Bạn sẽ thấy ổ đĩa sdd có dung lượng 64GB, nhưng chưa có phân vùng hoặc chưa được format.
+
+Tạo phân vùng và format đĩa: Nếu đĩa chưa được format, bạn cần tạo phân vùng và format lại đĩa. Ví dụ, nếu phân vùng của đĩa là sdd1, bạn có thể làm như sau:
+
+sudo fdisk /dev/sdd
+Tạo một phân vùng mới, sau đó format phân vùng này bằng cách sử dụng mkfs.ext4:
+sudo mkfs.ext4 /dev/sdd1
+Bước 2: Mount đĩa sdd1 vào thư mục mới
+Tạo thư mục mount: Tạo thư mục nơi bạn sẽ mount đĩa, ví dụ: /mnt/docker.
+
+sudo mkdir -p /mnt/docker
+Mount phân vùng sdd1 vào thư mục mới:
+
+sudo mount /dev/sdd1 /mnt/docker
+Kiểm tra lại: Chạy lệnh df -h để xác nhận rằng đĩa sdd1 đã được mount vào /mnt/docker.
+df -h
+
+
+--------------
+

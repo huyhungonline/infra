@@ -1,0 +1,93 @@
+sudo blkid /dev/sdb1
+
+/dev/sdb1: UUID="3dae2929-1020-4acb-bcc7-3347d290cce3" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="a236d1a4-01"
+
+/dev/sdd1: UUID="16cc23cf-1ee8-4b9e-a98c-a1679138d651" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="f4c3b7c9-01"
+
+/home/docker/volumes/application_minio-data/_data/
+
+-------------backup-----------------
+cd /home/docker/volumes/application_minio-data/_data/
+
+azcopy login --identity --identity-client-id 241ba4ce-742c-43bd-93fb-ae06fb96b25c
+
+2025-04-16-03-44-02
+2025-04-17-09-19-02
+
+azcopy copy easyrag 'https://devgenaicinnamonsttest.blob.core.windows.net/minio-backup/2025-04-17-09-19-02' --recursive
+
+------------------restore------------------
+                   Minio
+mkdir ~/restore
+cd ~/restore
+azcopy login --identity --identity-client-id 241ba4ce-742c-43bd-93fb-ae06fb96b25c
+azcopy copy 'https://devgenaicinnamonsttest.blob.core.windows.net/minio-backup/2025-04-17-09-19-02' . --recursive
+azcopy logout
+
+sudo su
+cp -r 2025-04-17-09-19-02 /home/docker/volumes/application_minio-data/_data/
+chown -R 1001:root /home/docker/volumes/application_minio-data/_data/2025-04-17-09-19-02
+
+                    Elasticsearch
+mkdir ~/restore/es
+cd ~/restore/es
+azcopy login --identity --identity-client-id 241ba4ce-742c-43bd-93fb-ae06fb96b25c
+azcopy copy https://devgenaicinnamonsttest.blob.core.windows.net/es-backup/backup-2025-04-24-10-00-00.zip . --recursive
+azcopy logout
+
+docker cp backup-2025-04-24-10-00-00.zip application-elasticsearch-1:/
+docker exec -it application-elasticsearch-1 bash
+cd /
+unzip backup-2025-04-24-10-00-00.zip
+chown elasticsearch:root -R /usr/share/elasticsearch/backups
+
+https://devgenaicinnamonsttest.blob.core.windows.net/es-backup/backup-2025-04-18-10-00-00.zip
+
+                      PostgreSQL
+
+mkdir ~/restore/posgresql
+cd ~/restore/posgresql
+sudo chown -R $USER:$USER /home/azureuser/restore/posgresql
+azcopy login --identity --identity-client-id 241ba4ce-742c-43bd-93fb-ae06fb96b25c
+azcopy copy https://devgenaicinnamonsttest.blob.core.windows.net/pg-backup/backup-2025-04-24-10-00-00.tar . --recursive
+azcopy logout
+docker cp backup-2025-04-24-10-00-00.tar application-crontab-backup-1:/tmp/
+
+docker exec application-crontab-backup-1 psql --version
+
+docker exec -it application-crontab-backup-1 bash
+psql postgres://postgres:bGRHTTJGnpscll6TldjRmxYYUhGamJXdFdtcGhhazAxWWxO@db:5432
+
+SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'app' AND pid <> pg_backend_pid();
+
+pg_restore -d "postgresql://postgres:bGRHTTJGnpscll6TldjRmxYYUhGamJXdFdtcGhhazAxWWxO@db:5432/app" --format=t /tmp/backup-2025-04-24-10-00-00.tar
+
+pg_restore -d "postgresql://postgres:bGRHTTJGnpscll6TldjRmxYYUhGamJXdFdtcGhhazAxWWxO@db:5432/test1" --format=t /tmp/backup-2025-04-24-10-00-00.tar
+
+                               Milvus
+
+mkdir ~/restore/milvus
+cd ~/restore/milvus
+azcopy login --identity --identity-client-id 241ba4ce-742c-43bd-93fb-ae06fb96b25c
+azcopy copy https://devgenaicinnamonsttest.blob.core.windows.net/milvus-backup/milvus_backup_2025_04_24_09_00_00.zip . --recursive
+azcopy logout
+docker cp milvus_backup_2025_04_24_09_00_00.zip application-crontab-backup-1:/tmp/
+docker exec -it application-crontab-backup-1 bash
+cd /tmp
+unzip milvus_backup_2025_04_24_09_00_00.zip
+cd backup
+milvus-backup restore --drop_exist_collection --drop_exist_index --restore_index -n milvus_backup_2025_04_24_09_00_00 --config /tmp/milvus-backup.yaml
+
+--------------------------------------
+
+docker stop application-crontab-backup-1
+docker rm application-crontab-backup-1
+
+sudo chown -R $USER:$USER /home/azureuser/restore/es
+
+k8s-ingressn-albingre-8d4adda03f-564153090.ap-northeast-1.elb.amazonaws.com
+
+https://tapaint.toei-anim.co.jp/
+
+------------
+    7z x application.zip

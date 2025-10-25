@@ -1,0 +1,165 @@
+   cat /etc/docker/daemon.json
+   sudo vi /etc/docker/daemon.json
+   sudo systemctl restart docker
+
+------ nvdia ---
+   sudo apt-get update
+   sudo apt-get install -y nvidia-container-toolkit
+   sudo systemctl restart docker
+   sudo systemctl daemon-reload
+
+---- 
+sudo docker compose ls
+sudo docker ps | grep api
+sudo docker exec -it 96 bash
+sudo docker logs -f 20661448785a
+
+them docker vao group user
+sudo usermod -aG docker $USER
+
+-----SR-----------
+docker login  acrname
+make up
+sudo docker logs -f application-api-1
+
+-------------xoa docker-----
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+
+docker rmi $(docker images -q)
+docker volume rm $(docker volume ls -q)
+docker restart $(docker ps -aq)
+docker start $(docker ps -aq)
+
+azureuser@naoki-vm-2:~$ docker rm application-api-1
+application-api-1
+azureuser@naoki-vm-2:~$ docker rm application-db-1
+application-db-1
+docker volume rm  application_db-data
+docker stop application-db-1
+docker rm application-db-1
+-------------kiem tra log container---------
+   3.0
+      docker logs application-kong-1
+      docker logs application-api-1
+      docker logs application-doc-reader-1
+      docker logs application-doc-reader-worker-1
+      docker logs application-ai-api-1
+      docker logs application-fe-1
+      docker logs application-redis-1
+      docker logs application-compressor-1
+      docker logs application-ai-split-page-1
+      docker logs application-doc-reader-api-1 
+   v3.2
+      docker logs application-doc-reader-1
+      docker logs application-queue-1
+      docker logs application-milvus-1
+      docker logs application-attu-1
+      docker logs application-indexing-1
+-------------------ACR----------------
+az acr repository list --name rag2410 --output table
+
+------------- vao trong container -----------
+   docker exec -it a2c5dc5ee469 bash
+
+
+Copy toàn bộ dữ liệu Docker cũ sang vị trí mới:
+   sudo rsync -aP /mnt/docker-data /home/docker/
+
+Cấu hình Docker dùng thư mục mới
+sudo nano /etc/docker/daemon.json
+
+Khởi động lại Docker và kiểm tra
+
+sudo systemctl start docker
+
+Kiểm tra xem Docker có nhận thư mục mới chưa:
+
+docker info | grep "Docker Root Dir"
+
+-----
+   Tóm tắt các bước:
+      Chỉnh sửa dịch vụ Docker: Mở và chỉnh sửa dịch vụ Docker bằng sudo systemctl edit docker.service và thêm dòng After=local-fs.target và RequiresMountsFor=/home/docker vào phần [Unit].
+      
+      Tải lại systemd: Chạy sudo systemctl daemon-reload để tải lại các thay đổi.
+      
+      Khởi động lại Docker: Dùng sudo systemctl restart docker để khởi động lại Docker.
+      
+      Kiểm tra Docker: Đảm bảo rằng Docker khởi động sau khi phân vùng /home/docker đã được mount.
+---------------
+ Dừng và xoá container cũ
+docker stop application-ai-api-1
+docker rm application-ai-api-1
+make up
+------------
+
+docker compose build --no-cache && docker compose up -d
+
+----sau khi them lenh pip cai thu vien--------
+docker compose build fastapi_app_dic --no-cache
+docker compose up -d
+
+
+ok 9ce64dde516a   rag2410.azurecr.io/prj_easyrag_production_kn/indexing:2.18.0-806417e          "sh -c 'python -m ap…"   58 minutes ago   Up 58 minutes                                                                                                                                                                                        application-ai-indexing-1
+
+ok 70f1629302ca   milvusdb/milvus:v2.6.0-rc1                                                    "/tini -- milvus run…"   58 minutes ago   Up 58 minutes (healthy)   9091/tcp, 19530/tcp                                                                                                                                                        application-milvus-1
+
+ok 5b5ced54f727   rag2410.azurecr.io/prj_easyrag_production_api/indexing:1.29.3-dc2b322         "python -m app.index…"   58 minutes ago   Up 58 minutes                                                                                                                                                                                        application-indexing-1
+
+ok 61270453993a   rag2410.azurecr.io/prj_easyrag_production_api/compressor:1.29.3-dc2b322       "python -m app.compr…"   58 minutes ago   Up 58 minutes                                                                                                                                                                                        application-compressor-1
+
+ok 1c3e2e61a001   rag2410.azurecr.io/prj_easyrag_production_api/api:1.29.3-dc2b322              "/start.sh"              58 minutes ago   Up 58 minutes             80/tcp                                                                                                                                                                     application-api-1
+
+ok 65c28523182b   rag2410.azurecr.io/prj_easyrag_production_api/converter:1.29.3-dc2b322        "python -m app.conve…"   58 minutes ago   Up 58 minutes                                                                                                                                                                                        application-converter-1
+
+ok b5ea37deb2f7   rag2410.azurecr.io/prj_easyrag_production_kn/api:2.18.0-806417e               "/start-reload.sh"       58 minutes ago   Up 58 minutes             80/tcp                                                                                                                                                                     application-ai-api-1
+
+ok 471ba1ef32e4   rag2410.azurecr.io/prj_easyrag_production_api/alert:1.29.3-dc2b322            "python -m app.alert…"   58 minutes ago   Up 58 minutes                                                                                                                                                                                        application-alert-1
+
+ok a7175e10521c   rag2410.azurecr.io/prj_easyrag_production_api/activityhub:1.29.3-dc2b322      "python -m app.activ…"   58 minutes ago   Up 58 minutes                                                                                                                                                                                        application-activityhub-1
+
+ok 33266dcf0b1f   rag2410.azurecr.io/prj_easyrag_production_llm_gateway/gateway:1.0.1-2862524   "uvicorn app.api.mai…"   58 minutes ago   Up 58 minutes             8080-8081/tcp                                                                                                                                                              application-ai-gateway-1
+
+ok 32737679ad05   postgres:16.4                                                                 "docker-entrypoint.s…"   58 minutes ago   Up 58 minutes (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp                                                                                                                                application-db-1
+
+ok 5aeb4f5cb237   redis:7.4.1                                                                   "docker-entrypoint.s…"   58 minutes ago   Up 58 minutes             6379/tcp                                                                                                                                                                   application-redis-1
+
+ok 0f80f3331294   rag2410.azurecr.io/lib-docreader/ai:1.6.0-7219d27                             "uvicorn app:app --h…"   58 minutes ago   Up 58 minutes             8080/tcp                                                                                                                                                                   application-doc-reader-1
+
+ok a60501dead73   docker.elastic.co/elasticsearch/elasticsearch:8.15.2                          "/bin/tini -- /usr/l…"   58 minutes ago   Up 58 minutes             9200/tcp, 9300/tcp                                                                                                                                                         application-elasticsearch-1
+
+ok 7a7fb63c8d2f   rag2410.azurecr.io/prj_easyrag_production_fe/fe:1.20.0-c92d175                "/docker-entrypoint.…"   58 minutes ago   Up 58 minutes (healthy)   80/tcp                                                                                                                                                                     application-fe-1
+
+ok 91c500a51f2a   rabbitmq:4.1.2-management                                                     "docker-entrypoint.s…"   58 minutes ago   Up 58 minutes (healthy)   4369/tcp, 5671/tcp, 0.0.0.0:5672->5672/tcp, [::]:5672->5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp                    application-queue-1
+
+ok 5fc7a018c9d4   quay.io/coreos/etcd:v3.5.5                                                    "etcd -advertise-cli…"   58 minutes ago   Up 58 minutes (healthy)   2379-2380/tcp                                                                                                                                                              application-etcd-1
+
+ok b834f968c282   kong:3.9.1                                                                    "/docker-entrypoint.…"   58 minutes ago   Up 58 minutes (healthy)   8000-8001/tcp, 8444/tcp, 0.0.0.0:80->8080/tcp, [::]:80->8080/tcp, 0.0.0.0:443->8443/tcp, [::]:443->8443/tcp                                                                application-kong-1
+
+ok 3d097f2d8e3b   bitnami/minio:2025.1.20                                                       "/opt/bitnami/script…"   58 minutes ago   Up 58 minutes             9000-9001/tcp                                                                                                                                                              application-fs-1
+
+ok 9b44fce32f83   rag2410.azurecr.io/prj_easyrag_production_backup/backup:1.0.0-3bf6133         "/bin/sh -c 'printen…"   3 hours ago      Up 3 hours                                                                                                                                                                                           application-crontab-backup-1
+
+ok 9660ec61ee8a   grafana/loki:3.5.3                                                            "/usr/bin/loki -conf…"   4 hours ago      Up 4 hours                3100/tcp                                                                                                                                                                   observability-loki-1
+
+ok c57a79236e76   gcr.io/cadvisor/cadvisor:v0.52.0                                              "/usr/bin/cadvisor -…"   4 hours ago      Up 4 hours (healthy)      8080/tcp                                                                                                                                                                   observability-cadvisor-1
+
+ok 9f2cdc901f24   grafana/promtail:3.5.3                                                        "/usr/bin/promtail -…"   4 hours ago      Up 4 hours                                                                                                                                                                                           observability-promtail-1
+
+ok 0f0331cd2b09   oliver006/redis_exporter:v1.74.0-alpine                                       "/redis_exporter"        4 hours ago      Up 4 hours                9121/tcp                                                                                                                                                                   observability-redis-exporter-1
+
+ok b43e6be4e408   nvcr.io/nvidia/k8s/dcgm-exporter:4.2.3-4.1.3-ubi9                             "/usr/local/dcgm/dcg…"   4 hours ago      Up 4 hours                9400/tcp                                                                                                                                                                   observability-dcgm-exporter-1
+
+ok bb1ee71170b4   prom/prometheus:v3.5.0                                                        "/bin/prometheus --c…"   4 hours ago      Up 4 hours                9090/tcp                                                                                                                                                                   observability-prometheus-1
+
+ok 07254e81061a   grafana/grafana:12.1.0                                                        "/run.sh"                4 hours ago      Up 4 hours                3000/tcp                                                                                                                                                                   observability-grafana-1
+
+ok 7e0740c871d6   otel/opentelemetry-collector-contrib:0.122.1                                  "/otelcol-contrib --…"   4 hours ago      Up 4 hours                0.0.0.0:4317-4318->4317-4318/tcp, [::]:4317-4318->4317-4318/tcp, 0.0.0.0:8888->8888/tcp, [::]:8888->8888/tcp, 0.0.0.0:55679->55679/tcp, [::]:55679->55679/tcp, 55678/tcp   observability-otel-collector-1
+
+ok 95734332b82c   quay.io/prometheuscommunity/postgres-exporter:v0.17.1                         "/bin/postgres_expor…"   4 hours ago      Up 4 hours                9187/tcp                                                                                                                                                                   observability-postgres-exporter-1
+
+ok 188c70352b10   grafana/tempo:2.8.1                                                           "/tempo -config.file…"   4 hours ago      Up 4 hours                3200/tcp, 4317-4318/tcp                                                                                                                                                    observability-tempo-1
+
+ok ed5e0a8beefc   prom/node-exporter:v1.9.1                                                     "/bin/node_exporter …"   4 hours ago      Up 4 hours                9100/tcp                                                                                                                                                                   observability-node-exporter-1
+
+ok 2bfe1139fd58   quay.io/prometheuscommunity/elasticsearch-exporter:v1.9.0                     "/bin/elasticsearch_…"   4 hours ago      Up 4 hours                7979/tcp, 9114/tcp                                                                                                                                                         observability-elasticsearch-exporter-1

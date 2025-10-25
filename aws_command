@@ -1,0 +1,37 @@
+aws configure --profile toei_cinnmaon
+aws s3api create-bucket \
+    --bucket test \
+    --region ap-northeast-1 \
+    --profile toei_cinnamon
+
+aws s3 cp sample.txt s3://toei-terraform-state1/path/to/sample.txt
+ap-northeast-1
+
+nano ~/.aws/config
+nano ~/.aws/credentials
+aws ecr get-login-password --region ap-northeast-1 | docker login --username nhuyhung@cinnamon.is --password-stdin 233434477695.dkr.ecr.ap-northeast-1.amazonaws.com
+
+aws ecr get-login-password --region ap-northeast-1 --profile toei_env | docker login --username AWS --password-stdin 233434477695.dkr.ecr.ap-northeast-1.amazonaws.com
+
+aws ecr describe-repositories --profile toei_env
+
+aws s3 ls --profile toei_cinnamon
+
+
+docker logout 233434477695.dkr.ecr.ap-northeast-1.amazonaws.com
+sudo usermod -aG docker $USER
+
+aws ecr get-login-password --region ap-northeast-1 --profile toei_cinnamon | docker login --username AWS --password-stdin 970547345650.dkr.ecr.ap-northeast-1.amazonaws.com
+
+aws ecr get-login-password --region ap-northeast-1 --profile toei_cinnamon | docker login --username AWS --password-stdin 233434477695.dkr.ecr.ap-northeast-1.amazonaws.com
+
+
+aws eks update-kubeconfig --region ap-northeast-1 --name toeicpd2-cobra-dev-eks --profile toei_cinnamon
+
+/usr/local/bin/ 
+
+sudo mv helmfile /usr/local/bin/
+
+aws eks update-kubeconfig --region ap-northeast-1 --name toeicpd2-cobra-dev-eks --profile toei_cinnamon
+
+

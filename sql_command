@@ -1,0 +1,54 @@
+docker exec -it application-db-1 bash
+psql -U postgres
+
+tenant_default
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'tenant_default' AND table_type = 'BASE TABLE';
+SELECT schema_name FROM information_schema.schemata;
+
+\c app
+\q
+
+SELECT * FROM tenant_default."user";
+SELECT * FROM public."user";
+
+ ✔ Volume "application_db-data"               Created                                                                                                                             0.0s
+ ✔ Volume "application_etcd-data"             Created                                                                                                                             0.0s
+ ✔ Volume "application_milvus-data"           Created                                                                                                                             0.0s
+ ✔ Volume "application_redis-data"            Created                                                                                                                             0.0s
+ ✔ Volume "application_minio-data"            Created                                                                                                                             0.0s
+ ✔ Volume "application_es-data"               Created
+
+ docker stop application-db-1
+ docker rm application-db-1
+ docker volume rm  application_db-data
+
+Trong MySQL, chạy lệnh thay mật khẩu:
+
+ALTER USER 'root'@'%' IDENTIFIED BY 'mp3199403';
+FLUSH PRIVILEGES;
+
+CREATE USER 'hungbk'@'%' IDENTIFIED BY '123456';
+
+ALTER USER 'hungbk'@'%' IDENTIFIED BY '123456';
+FLUSH PRIVILEGES;
+
+GRANT ALL PRIVILEGES ON testdb.* TO 'hungbk'@'%';
+
+Trường hợp 1: Giữ nguyên data nhưng đổi mật khẩu
+
+Bạn phải đăng nhập vào MySQL và chạy:
+
+ALTER USER 'root'@'%' IDENTIFIED BY 'newpassword123';
+FLUSH PRIVILEGES;
+
+
+Sau đó khởi động lại container:
+
+docker-compose restart fastapi_app_dic
+
+docker-compose restart mysql_db_dic
+
+docker exec -it mysql_jaenglish mysql -u root -p
+
+docker exec -it mysql_jaenglish bash

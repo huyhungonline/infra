@@ -1,0 +1,15 @@
+az storage container list --account-name devgenaicinnamonsttest --auth-mode login
+
+Name
+株式会社シナモン
+Tenant ID
+54858817-bdbd-4670-a195-3de5f6ac900f
+subcription: 2cb714e8-e98c-4280-8220-25ccf7bd7bf9
+------------------------
+az login --tenant 54858817-bdbd-4670-a195-3de5f6ac900f
+az account set --subscription 2cb714e8-e98c-4280-8220-25ccf7bd7bf9
+export ARM_SUBSCRIPTION_ID=2cb714e8-e98c-4280-8220-25ccf7bd7bf9
+
+gomplate --config .gomplate.yaml --context Values=dice/project.yaml
+
+
